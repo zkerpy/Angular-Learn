@@ -240,10 +240,12 @@ doOnInput > 改变value > 赋值给组件name > [value]="name" && {{name}}
 bind.component.html
 	export class BindComponent implements OnInit {
 	  constructor() {
+	  	↓↓↓流↓↓↓
 	    Observable.from([1, 2, 3, 4])
 	      .filter(e => e % 2 == 0)
 	      .map(e => e * e)
 	      .subscribe(
+	        ↓↓↓观察者↓↓↓
 	        e => console.log(e),
 	        err => console.error(err),
 	      )
@@ -252,7 +254,6 @@ bind.component.html
 	  }
 	}
 ```
-
 **Error**
 TS2339: Property 'from' does not exist on type 'typeof Observable'
 
@@ -266,7 +267,119 @@ TS2339: Property 'from' does not exist on type 'typeof Observable'
 
 [TS2339: Property 'from' does not exist on type 'typeof Observable'](https://github.com/ReactiveX/rxjs/issues/1694)
 
+#### 使用响应式编程做事件处理
 
+在浏览器中产生的每一个事件，在JavaScript里面都会被封装成event对象
 
-### 管道
+Angular既可以处理标准的DOM事件，也可以处理自定义的事件
 
+```
+bind.component.html
+	<input (keyup)="onKey($event)" />
+
+bind.component.ts
+	onKey(event) {
+	    console.log(event.target.value);
+	  }
+
+```
+
+##### 模板本地变量
+
+```
+bind.component.html
+	<input #myField (keyup)="onKey(myField.value)" />
+
+bind.component.ts
+	onKey(value:string) {
+	    console.log(value);
+	  }
+```
+*将事件作为永不结束的流来处理*
+
+每个表单元素都有自己的FormControl对象 
+一个表单元素的值发生变化的时候，就会触发FormControl，
+FormControl会发射一个ValueChange事件，
+这些ValueChange事件就会组成一个可订阅的流
+
+##### 实战
+
+1. app.module.ts导入ReactiveFormsModule模块
+2. 使用FormControl去监听input变化
+
+```
+bind.component.html
+	<input [formControl]="searchInput" />
+
+bind.component.ts
+	export class BindComponent implements OnInit {
+	  searchInput: FormControl = new FormControl();
+	  constructor() {
+	  	↓↓↓流（被观察者）↓↓↓
+	    this.searchInput.valueChanges
+			.debounceTime(500)
+						↓↓↓观察者↓↓↓
+			.subscribe(stockCode => this.getStockInfo(stockCode))
+	  }
+	  getStockInfo(value:string) {
+	    console.log(value);
+	  }
+	  ngOnInit(): void {
+	  }
+	}
+```
+#### 管道
+
+原始值 =>> 显示值
+
+{{birthday| date | uppercase}}
+
+{{birthday| date:'yyyy-MM-dd HH:mm:ss' | uppercase}}
+
+3.1415926
+
+{{pi | number:'2.2-2'}} 3.14
+
+{{pi | number:'2.1-4'}} 3.1416 四舍五入
+
+3
+
+{{pi | number:'2.1-4'}} 3.0
+
+##### 自定义管道
+
+1. 新建管道
+```
+	ng g pipe pipe/multiple
+```
+2. 声明在模块的declarations里
+```
+	@NgModule({
+	  declarations: [
+	    AppComponent,
+	    ProductinfoComponent,
+	    ProductdetailComponent,
+	    BindComponent,
+	    MultiplePipe
+	  ],
+	  ...
+	})
+```
+3. 编写
+```
+	import { Pipe, PipeTransform } from '@angular/core';
+
+	@Pipe({
+	  name: 'multiple'
+	})
+	export class MultiplePipe implements PipeTransform {
+				例子:  date 	: 'yyyy-MM-dd HH:mm:ss'
+				↓原始值↓	↓可选参数↓
+	  transform(value: any, args?: any): any {
+	  	if(!args){
+	  		args=1;
+	  	}
+	    return value*args;
+	  }
+	}
+```
