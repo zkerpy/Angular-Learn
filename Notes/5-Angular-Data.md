@@ -233,7 +233,7 @@ doOnInput > 改变value > 赋值给组件name > [value]="name" && {{name}}
 
 ### 响应式编程
 
-![响应式编程](https://github.com/zkerpy/Angular-Learn/blob/master/Notes/Observable.png)
+![响应式编程](https://github.com/zkerpy/Angular-Learn/blob/master/Img/Observable.png)
 
 
 ```

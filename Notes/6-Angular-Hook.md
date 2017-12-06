@@ -4,7 +4,7 @@
 
 #### OnChanges
 
-![组件生命周期钩子](https://github.com/zkerpy/Angular-Learn/blob/master/Notes/Hook.png)
+![组件生命周期钩子](https://github.com/zkerpy/Angular-Learn/blob/master/Img/Hook.png)
 
 红色的方法只会被调用一次
 
