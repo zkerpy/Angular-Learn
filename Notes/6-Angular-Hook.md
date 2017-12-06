@@ -1,228 +1,12 @@
-### 组件间通讯
-
-#### 组件的输入输出属性
-
-##### @Input
-
-```
-app.component.html
-
-	<div class="">我是父组件</div>
-	<div class="">
-	  <input type="text" placeholder="请输入股票代码" [(ngModel)]="stock">
-	  <app-zorder [stockCode]="stock" [amount]="100"></app-zorder>
-	</div>
-
-app.component.ts
-
-	export class AppComponent {
-	  stock = '';
-	}
-zorder.component.html
-
-	<p>
-	  子组件
-	</p>
-	<div>买{{amount}} 手 {{stockCode}}股票</div>
-
-zorder.component.ts
-	
-	export class ZorderComponent implements OnInit {
-	  @Input()
-	  stockCode: string;
-	  @Input()
-	  amount: number;
-	  constructor() {
-	    setInterval(
-	      () => {
-	        this.stockCode = "Apple";
-	      },3000
-	    )
-	  }
-	  ngOnInit() {
-	  }
-	}
-```
-
-这个例子中属性绑定是单向的，是从父组件到子组件
-子组件的属性变化不会影响父组件的变化
-
-##### 路由
-
-参考Angular-Route那一章
-
-##### @Output
-
-场景：模拟股票交易市场实时显示
-
-```
-price-quote.component.html
-	
-	<div>股票价格{{stockCode}} 股票金额{{Price | number:'2.2-2'}}</div>
-
-price-quote.component.ts
-
-	export class PriceQuoteComponent implements OnInit {
-
-	  stockCode:string = "Apple";
-	  Price:number;
-
-	  constructor() {
-	    setInterval(() =>{
-	      let priceQuote:PriceQuote= new PriceQuote(this.stockCode,100*Math.random());
-	      this.Price=priceQuote.lastPrice;
-	    },1000)
-	  }
-
-	  ngOnInit() {
-	  }
-
-	}
-	export class PriceQuote{
-	  constructor(
-	    public stockCode:string,
-	    public lastPrice:number,
-	  ){}
-	}
-
-app.component.html
-
-	<app-price-quote></app-price-quote>
-```
-
-信息输出到组件外部，信息通过price-quote组件传递到app父组件
-
-```
-price-quote.component.html
-	
-	<div>股票价格{{stockCode}} 股票金额{{Price | number:'2.2-2'}}</div>
-
-price-quote.component.ts
-
-	export class PriceQuoteComponent implements OnInit {
-
-	  stockCode:string = "Apple";
-	  Price:number;
-
-	  // EventEmitter既可以是发射事件，又可以订阅事件
-	  // 提供给其他组件访问
-	  //   改名字↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-	  // @Output('priceChange')
-	  @Output()
-	  outputPrice:EventEmitter<PriceQuote>=new EventEmitter();
-
-	  constructor() {
-	    setInterval(() =>{
-	      let priceQuote:PriceQuote= new PriceQuote(this.stockCode,100*Math.random());
-	      this.Price=priceQuote.lastPrice;
-
-	      // 这个泛型所指定这个类型的变量输出
-	      this.outputPrice.emit(priceQuote);
-	    },1000)
-	  }
-
-	  ngOnInit() {
-	  }
-
-	}
-	export class PriceQuote{
-	  constructor(
-	    public stockCode:string,
-	    public lastPrice:number,
-	  ){}
-	}
-
-app.component.html
-
-	<!--和输出属性的名字一样↓↓↓↓↓@Output-->
-	<app-price-quote (outputPrice)="priceQuoteHandler($event)"></app-price-quote>
-	<div class="">
-	  这是报价组件外部
-	  股票代码是{{priceQuote.stockCode}}
-	  股票代码是{{priceQuote.lastPrice}}
-	</div>
-
-app.component.ts
-
-	export class AppComponent {
-
-	  priceQuote:PriceQuote=new PriceQuote("", 0)
-	  priceQuoteHandler(event: PriceQuote){
-	    this.priceQuote=event
-	  }
-	}
-
-
-```
-
-stockCode&&Price >> @Output (EventEmitter.emit) >>  app-price-quote (@Output_name) >> PriceQuote 
-
-
-#### 使用中间人模式传递数据
-
-场景：当交易金额到达某一个值的时候要买这个股票
-
-
-当价格到达一定的值的时候，点击price-quote.component.html的按钮 price-quote.component.ts（@Output）发送信息给中间人
-
-```
-price-quote.component.html
-
-	<input type="button" value="click" (click)="buyStock($event)">
-
-price-quote.component.ts
-
-	@Output()
-	buy:EventEmitter<PriceQuote>=new EventEmitter();
-	
-	前台点击
-	buyStock(event){
-		this.buy.emit(new PriceQuote(this.stockCode,this.Price));
-	}
-
-```
-
-中间人接受到信息
-
-```
-app.component.html
-
-	<app-price-quote (buy)="buyHandler($event)"></app-price-quote>
-	<app-order [priceQuote]="priceQuote"></app-order>
-
-app.component.ts
-
-	priceQuote:PriceQuote=new PriceQuote("", 0)
-	buyHandler(event: PriceQuote){
-		this.priceQuote=event
-	}
-
-```
-
-orderz组件（@Input）
-
-```
-order.component.ts
-	
-	@Input
-	priceQuote:PriceQuote;
-
-order.component.html
-
-	<div>
-	  {{priceQuote.stockCode}}股票
-	  价格是{{priceQuote.lastPrice}}
-	</div>
-```
-
-如果两个组件没有共同的父组件，那么使用服务来解耦合
-
+### Hook(钩子)
 
 #### 组件生命周期以及angular的变化发现机制
 
+#### OnChanges
+
 ![组件生命周期钩子](https://github.com/zkerpy/Angular-Learn/blob/master/Notes/Hook.png)
 
-绿色的方法只会被调用一次
+红色的方法只会被调用一次
 
 跟Android的生命周期有点像
 
@@ -297,10 +81,124 @@ app.component.html
 	<app-zchild [greeting]="greeting" [user]="user"></app-zchild>
 ```
 
+用户只是改变了可变对象user的属性name，user对象的引用自身是没有改变的，所以ngOnChanges没有被调用。
 
-
-用户只是改变了可变对象user的属性name，user对象的引用自身是没有改变的。ngOnChanges没有被调用
 ngOnChanges只有是输入属性变化时才被调用，所以message变化并没有打印log
+
+
+#### 变更检测
+
+zone.js 保证组件属性的变化和页面的变化同步的
+
+![]()
+
+#### DoCheck
+
+```
+	oldUsername: string;
+
+	changeDetected: boolean = false;
+
+	noChangeCount: number;
+
+	ngDoCheck(): void {
+		if (this.user.name !== this.oldUsername) {
+			this.changeDetected = true;
+			console.log('change');
+			this.oldUsername = this.user.name;
+		}
+		if (this.changeDetected) {
+			this class="n"></this>oChangeCount = 0;
+		}else {
+			// user.name没有变化，doDocheck也会被调用
+			this.noChangeCount = this.noChangeCount + 1;
+			console.log("被调用"+this.noChangeCount);
+		}
+		this.changeDetected = false;
+	}
+```
+
+
+#### 父组件调用子组件的方法
+
+在子组件定义一个方法
+
+```
+	greetingfun(name: string) {
+	    console.log("hello" + name);
+	}
+```
+
+##### 父组件的代码中调用
+
+```
+
+	<app-zchild #child1></app-zchild>
+
+	@ViewChild("child1")
+	child: ZchildComponent;
+
+	ngOnInit(): void {
+	this.child.greetingfun("zkerpy");
+	}
+```
+
+
+
+##### 父组件的模板中调用
+
+```
+
+	<app-zchild #child2></app-zchild>
+	<button (click)="child2.greetingfun('Tom')">Hello Tom</button>
+```
+
+#### AfterViewInit AfterViewChecked
+
+组件视图都组装完毕才调用，如果这个时候企图通过这个两个钩子改变视图会报错(解决方法是跳出当前生命周期（setTimeout()）等)
+
+子组件初始化完毕>子组件变更检测完毕>父组件初始化完毕>父组件变更检测完毕
+
+子组件变更检测完毕>父组件变更检测完毕
+
+#### 投影(页头和页脚)
+
+```
+
+	<div class="wrapper">
+	  <h2>父组件</h2>
+	  <div class="">这个div定义在父组件中</div>
+	  <app-zchild>
+	    <div class="header">这个div是父组件投影到子组件的{{title}}</div>
+	    <div class="footer">这个div是父组件投影到子组件的</div>
+	  </app-zchild>
+	</div>
+
+	<div class="wrapper">
+	  <h2>子组件</h2>
+	  <div class="">这个div定义在子组件中</div>
+	  <ng-content select=".header"></ng-content>
+	  定义一个投影点
+	  <ng-content select=".footer"></ng-content>
+	</div>
+```
+
+>Tip
+
+```
+	divContent="<div>hello world</div>"
+	<div [innerHTML]="divContent"></div>
+```
+
+#### AfterContentInit AfterContentChecked
+
+
+在投影加载完成后
+
+
+运行时动态改变组件内容
+
+
 
 
 
