@@ -160,12 +160,18 @@ stockCode&&Price >> @Output (EventEmitter.emit) >>  app-price-quote (@Output_nam
 
 #### 使用中间人模式传递数据
 
-场景：当交易元到达某一个值的时候要买这个股票
+场景：当交易金额到达某一个值的时候要买这个股票
 
 
-当价格到达一定的值的时候，price-quote.component.ts（@Output）发送信息给中间人
+当价格到达一定的值的时候，点击price-quote.component.html的按钮 price-quote.component.ts（@Output）发送信息给中间人
 
 ```
+price-quote.component.html
+
+	<input type="button" value="click" (click)="buyStock($event)">
+
+price-quote.component.ts
+
 	@Output()
 	buy:EventEmitter<PriceQuote>=new EventEmitter();
 	
@@ -182,18 +188,18 @@ stockCode&&Price >> @Output (EventEmitter.emit) >>  app-price-quote (@Output_nam
 app.component.html
 
 	<app-price-quote (buy)="buyHandler($event)"></app-price-quote>
-	<app-order (priceQuote)="priceQuote"></app-order>
+	<app-order [priceQuote]="priceQuote"></app-order>
 
 app.component.ts
 
 	priceQuote:PriceQuote=new PriceQuote("", 0)
-		buyHandler(event: PriceQuote){
+	buyHandler(event: PriceQuote){
 		this.priceQuote=event
 	}
 
 ```
 
-order（@Input）
+orderz组件（@Input）
 
 ```
 order.component.ts
@@ -209,8 +215,92 @@ order.component.html
 	</div>
 ```
 
+如果两个组件没有共同的父组件，那么使用服务来解耦合
+
 
 #### 组件生命周期以及angular的变化发现机制
+
+![组件生命周期钩子](https://github.com/zkerpy/Angular-Learn/blob/master/Notes/Hook.png)
+
+绿色的方法只会被调用一次
+
+跟Android的生命周期有点像
+
+
+var greeting="Hello"
+greeting="Hello world"
+
+内存中有两个字符串 两个字符串都是不可变的，
+对greeting变量来说是改变的（指向字符串的内存地址发生改变“Hello”>>"Hello world"）
+
+
+var user={name:"Tom"}
+user.name="Jerry"
+
+对于user对象来说，变得是user.name指向的内存地址，而user对象内存地址不变 
+
+
+##### 实战
+
+```
+zchild.component.html
+
+	<div class="">
+	  <h2>child</h2>
+	  <div class="">{{greeting}}</div>
+	  <div class="">{{user.name}}</div>
+	  <div class="">messgage <input [(ngModel)]="message"></div>
+	</div>
+
+
+zchild.component.ts
+
+	export class ZchildComponent implements OnInit , OnChanges {
+
+		@Input()
+		greeting:string;
+
+		@Input()
+		user: {name:string};
+
+		message:string;
+
+		constructor() { }
+
+		ngOnInit() {
+		}
+		ngOnChanges(changes: SimpleChanges): void {
+		console.log(JSON.stringify(changes, null, 2));
+		}
+
+	}
+
+
+app.component.ts
+
+	export class AppComponent {
+
+		greeting: string = "Hello";
+		user: {name:string} = {name:"Tom"};
+
+	}
+
+app.component.html
+
+	<div class="">
+	  <h2>fu</h2>
+	  <div class=""><input type="text" [(ngModel)]="greeting"></div>
+	  <div class=""><input type="text" [(ngModel)]="user.name"></div>
+	</div>
+	<hr/>
+
+	<app-zchild [greeting]="greeting" [user]="user"></app-zchild>
+```
+
+
+
+用户只是改变了可变对象user的属性name，user对象的引用自身是没有改变的。ngOnChanges没有被调用
+ngOnChanges只有是输入属性变化时才被调用，所以message变化并没有打印log
 
 
 
