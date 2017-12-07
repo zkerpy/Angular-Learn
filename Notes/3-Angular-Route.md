@@ -221,10 +221,14 @@ app.component.html
 
 - CanActive: 处理导航到某路由的情况
 - CanDeactivate: 处理从当前路由离开的情况
-- Resolve:　在路由激活之前获取路由数据
+- Resolve:　在路由激活之前获取路由数据 
 
-guard
+
+guard/
+
 ```
+login.guard.ts
+
 	export class  LoginGuard implements CanActivate{
 		canActivate() {
 			let loggedIn : boolean = Math.random() < 0.5;
@@ -235,43 +239,116 @@ guard
 		}
 	}
 
+unsaveGuard.ts
+						要保护组件的类型↓↓↓↓↓↓↓
+	export class UnsavedGuard implements CanDeactivate<ProductComponent> {
+	  canDeactivate(component: ProductComponent,) {
+	    return window.confirm('确定离开吗');
+	  }
+	}
+
+app-routing.module.ts
+
 	{path: 'chat', component: ChatComponent,outlet: 'aux',
 		canActivate : [LoginGuard],
 		canDeactivate : [UnsavedGuard],
 	},
 
+	providers:[LoginGuard, UnsavedGuard , ProductResolve]
+						
 ```
 
+##### Resolve
+
+在导航到某一路由下，预先加载好数据
+
+```
+
+productResolve.guard.ts
+
+	@Injectable()
+	export class ProductResolve implements Resolve<Product> {
+	  constructor(private router: Router) {
+
+	  }
+
+	  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Product> | Promise<Product> | Product {
+	    let productId: number = route.params['id'];
+	    //如果获取的id是1的时候返回
+	    if (productId == 1) {
+	      return new Product(1, "Mi");
+	    } else {
+	      this.router.navigate(['/home']);
+	      return undefined;
+	    }
+	  }
+	}
 
 
+app-routing.module.ts
 
+	{path: 'product/:id', component: ProductComponent,
+	    children: [
+	      {path: "info/:sId", component: SelierInfoComponent},
+	      {path: "", component: DetailproductComponent},
+	    ], resolve : {
+	      product : ProductResolve
+	    }
+	  },
 
+	providers:[LoginGuard, UnsavedGuard , ProductResolve]
 
+app.component.html
 
+	<a [routerLink]="['/home']">Home</a>
+	<a [routerLink]="['/product',1]">Product</a>
+	<router-outlet></router-outlet>
 
+product.component.ts
 
+	export class ProductComponent implements OnInit {
 
+	  // 接受这个参数
+	  public productId: number;
+	  public productName: string;
 
+	  constructor(public routeInfo: ActivatedRoute) {}
 
+	  ngOnInit() {
+	       app-routing.module.ts里面resolve的key↓↓↓
+	    this.routeInfo.data.subscribe((data: {product: Product}) => {
+	      this.productId = data.product.id;
+	      this.productName = data.product.title;
+	    });
+	  }
 
+	}
+	
+	export  class Product{
+	  constructor(
+	    public id: number,
+	    public title: string,
+	  ) {}
+	}
+	
+product.component.html
+	<p>
+	  这里是商品信息组件
+	</p>
 
+	<p>
+	  商品id是 {{productId}}
+	</p>
+	<p>
+	  商品id是 {{productName}}
+	</p>
 
+	<a [routerLink]="['./']">产品信息</a>
+	<a [routerLink]="['./info', 22]">销售员信息</a>
 
+	<router-outlet></router-outlet>
 
-
-
-
-
-
-
-1
-
-
-
-
-
-
-
+``` 
 
 
 *约定*
