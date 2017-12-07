@@ -27,7 +27,7 @@ NgModel =====================> FormControl
 
 与NgForm指令类似，NgModel这个指令创建的对象也可以通过一个模板变量来引用，并通过这个模板变量的value属性来访问字段的值
 
-  <input type="password" #password="ngModel" ngModel  name="passwrod"/>
+  <input type="password" #password="ngModel" ngModel  name="password"/>
 
   {{password.value}}
 
@@ -50,7 +50,7 @@ form.component.html
 		<input type="" ngModel name="email" />
 	  
 		<div ngModelGroup="userPassword">
-		<input type="password" #password="ngModel" ngModel  name="passwrod"/>
+		<input type="password" #password="ngModel" ngModel  name="password"/>
 		<input type="password" ngModel name="password_confirm"  />
 		</div>
 
@@ -130,6 +130,8 @@ formControlName和formArrayName必须用在formGroup之内使用
 formArrayName和*ngFor一起使用
 
 
+###### 演习
+
 ```
 
 	<form action="" [formGroup]="formModel" (submit)="onSubmit()" >
@@ -164,6 +166,7 @@ reactive-form.component.ts
 	      new FormControl("zkerpy@126.com"),
 	    ])
 	})
+
 	添加Email
 	addEmail() {
 		获取当前ts下的'emailArray',push一个新的FormControl
@@ -171,11 +174,67 @@ reactive-form.component.ts
 		email.push(new FormControl("zkerpy@163.com"));
 	}
 
+	onSubmit(value:any){
+		console.log(value)
+	}
+
 ```
 
+###### 实战
+
+```
+
+	<form action="/register" method="post" [formGroup]="formModel" (submit)="onSubmit()" >
+	  <div><label for=""></label><input type="text"  formControlName="username"></div>
+	  <div><label for=""></label><input type="text"  formControlName="iphone"></div>
+	  <div formGroupName="passwordsGroupModel">
+	    <div><label for=""></label><input type="text"  formControlName="password"></div>
+	    <div><label for=""></label><input type="text"  formControlName="password_confirm"></div>
+	  </div>
+	  <div><input type="submit" name="" value="Submit" ></div>
+	</form>
+
+form.component.ts
+
+	formModel: FormGroup;
+
+	constructor(){
+
+	}
+	ngOnInit() {
+		this.formModel = new  FormGroup({
+		username: new FormControl(),
+		iphone: new FormControl(),
+		passwordsModel: new  FormGroup({
+			password: new FormControl(),
+			password_confirm: new FormControl()
+			})
+		})
+	}
+
+	onSubmit(){
+		console.log(this.formModel.value)
+	}
 
 
+	使用FormBuilder重构响应式表单
 
+	constructor(fd: FormBuilder) {
+	    this.formModel = fd.group({
+	      // 数组的第一个元素是FormControl的初始值，第二个元素是校验方法，第三个元素是异步校验方法（参照表单验证）
+	      username: [''],
+	      iphone: [''],
+	      passwordsGroupModel: fd.group({
+	        password: [''],
+	        password_confirm: ['']
+	      })
+	    })
+	}
+	ngOnInit() {
+	}
+
+
+```
 
 
 ### 模板式表单和响应式表单的区别
@@ -185,4 +244,6 @@ reactive-form.component.ts
 - 响应式表单并不会替你生成HTML，模板仍然需要你自己来编写。
 
 
-### 表单验证
+
+
+
