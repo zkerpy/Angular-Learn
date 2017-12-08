@@ -50,8 +50,8 @@ form.component.html
 		<input type="" ngModel name="email" />
 	  
 		<div ngModelGroup="userPassword">
-		<input type="password" #password="ngModel" ngModel  name="password"/>
-		<input type="password" ngModel name="password_confirm"  />
+			<input type="password" #password="ngModel" ngModel  name="password"/>
+			<input type="password" ngModel name="password_confirm"  />
 		</div>
 
 		<input type="submit" name="register"/>
@@ -103,7 +103,7 @@ ngModel会为绑定的字段创建FormControl
 | -- | -- | -- |
 | FormGroup |  formGroup |  formGroupName |
 | FormControl | formControl | formControlName |
-| Form Array | | formArrayName |
+| FormArray | | formArrayName |
 |  |  需要属性绑定语法(加[])↑↑↑   | ↑↑↑|
 
 **TypeScript中操作**
@@ -133,7 +133,7 @@ formArrayName和*ngFor一起使用
 ###### 演习
 
 ```
-
+reactive-form.component.html
 	<form action="" [formGroup]="formModel" (submit)="onSubmit()" >
 	  <div class="" formGroupName="dateRange">
 	    start_date:<input type="date" formControlName="start_date">
@@ -142,7 +142,7 @@ formArrayName和*ngFor一起使用
 
 	  <div class="">
 	    <ul formArrayName='emailArray'>
-	    				获取reactive-form.component.ts的formModel内容	下标↓↓		
+	    		  获取reactive-form.component.ts的formModel内容↓↓↓	 下标↓↓		
 	      <li *ngFor='let e of this.formModel.get("emailArray").controls;let i=index;'>
 	        <input type="text" [formControlName]="i">
 	      </li>
@@ -183,7 +183,7 @@ reactive-form.component.ts
 ###### 实战
 
 ```
-
+form.component.html
 	<form action="/register" method="post" [formGroup]="formModel" (submit)="onSubmit()" >
 	  <div><label for=""></label><input type="text"  formControlName="username"></div>
 	  <div><label for=""></label><input type="text"  formControlName="iphone"></div>
@@ -216,13 +216,15 @@ form.component.ts
 		console.log(this.formModel.value)
 	}
 
-
+```
+---
+```
 	使用FormBuilder重构响应式表单
 
 	constructor(fd: FormBuilder) {
 	    this.formModel = fd.group({
 	      // 数组的第一个元素是FormControl的初始值，第二个元素是校验方法，第三个元素是异步校验方法（参照表单验证）
-	      username: [''],
+	      username: ['',...],
 	      iphone: [''],
 	      passwordsGroupModel: fd.group({
 	        password: [''],
@@ -232,8 +234,6 @@ form.component.ts
 	}
 	ngOnInit() {
 	}
-
-
 ```
 
 
