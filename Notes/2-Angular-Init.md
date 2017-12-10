@@ -43,6 +43,11 @@ npm config set registry https://registry.npm.taobao.org
 npm config get registry
 // 或
 npm info express
+
+使用cnpm下载
+
+npm install -g cnpm -registry=https://registry.npm.taobao.org
+
 ```
 
 #### 命令行安装cli

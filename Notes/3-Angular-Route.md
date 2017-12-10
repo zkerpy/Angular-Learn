@@ -3,12 +3,18 @@
 #### 新建路由项目
 
 ```
-ng new <router-project-name> --routing
+	ng new <router-project-name> --routing
 ```
+#### 创建新的模组
+
+```
+	ng g module <module-name> --routing
+```
+
 #### 新建组件
 
 ```
-ng g component <component-name>
+	ng g component <component-name>
 ```
 
 #### Routes
@@ -16,19 +22,19 @@ ng g component <component-name>
 - 在app-routing.module.ts中配置路由
 
 ```
-const routes: Routes = [
-  {path:'', component: HomeComponent},
-  {path:'product', component: ProductComponent}
-];
+	const routes: Routes = [
+		{path:'', component: HomeComponent},
+		{path:'product', component: ProductComponent}
+	];
 ```
 *path不使用/开头，是为了在多个试图间导航时可以自由的使用绝对路径和相对路径*
 
 - app.component.html
 
 ```
-<a [routerLink]="['/product']">Product</a>
-<a [routerLink]="['/']">Home</a>
-<input type="button" value="Detail Prodcut" (click)="toProductDeails()">
+	<a [routerLink]="['/product']">Product</a>
+	<a [routerLink]="['/']">Home</a>
+	<input type="button" value="Detail Prodcut" (click)="toProductDeails()">
 ```
 
 **path的顺序有很大的差别** 
@@ -48,14 +54,14 @@ const routes: Routes = [
 - app.component.ts
 
 ```
-export class AppComponent {
-  title = 'app';
-  constructor(public  router : Router){}
-  鼠标点击事件
-  toProductDeails(){
-    this.router.navigate(['/product'])
-  }
-}
+	export class AppComponent {
+		title = 'app';
+		constructor(public  router : Router){}
+		鼠标点击事件
+		toProductDeails(){
+			this.router.navigate(['/product'])
+		}
+	}
 ```
 
 #### 在路由时传递数据
@@ -73,24 +79,24 @@ export class AppComponent {
 1. 在app.component.html中配置要传入的参数
 
 ```
-<a [routerLink]="['/product']" [queryParams]="{id: 1}">Product</a>
+	<a [routerLink]="['/product']" [queryParams]="{id: 1}">Product</a>
 ```
 2. 在product.component.ts使用ActiveRoute
 
 ```
-export class ProductComponent implements OnInit {
-  // 接受这个参数
-  public productId: number;
-  constructor(public routeInfo: ActivatedRoute){}
-  ngOnInit() {
-    this.productId = this.routeInfo.snapshot.queryParams["id"];
-  }
-}
+	export class ProductComponent implements OnInit {
+		// 接受这个参数
+		public productId: number;
+		constructor(public routeInfo: ActivatedRoute){}
+		ngOnInit() {
+			this.productId = this.routeInfo.snapshot.queryParams["id"];
+		}
+	}
 ```
 3. 显示这个ID
 
 ```
-{{productId}}
+	{{productId}}
 ```
 ##### 在路由路径中传递数据
 
@@ -101,38 +107,39 @@ export class ProductComponent implements OnInit {
 1. 修改app-routing.module.ts的path属性使其可以携带参数
 
 ```
-{path:'product/:id', component: ProductComponent},
+	{path:'product/:id', component: ProductComponent},
 ```
 2. 修改app.component.html路由链接的参数
 ```
-<a [routerLink]="['/product',1]">Product</a>
+	<a [routerLink]="['/product',1]">Product</a>
 ```
 3. 改变商品详细信息的组件取值方式 查询参数中取数据 <==> URL中取数据
 
+product.component.ts
 ```
-export class ProductComponent implements OnInit {
-  // 接受这个参数
-  public productId: number;
-  constructor(public routeInfo: ActivatedRoute){}
-  ngOnInit() {
-    this.productId = this.routeInfo.snapshot.params["id"];
-  }
-}
+	export class ProductComponent implements OnInit {
+		// 接受这个参数
+		public productId: number;
+		constructor(public routeInfo: ActivatedRoute){}
+		ngOnInit() {
+			this.productId = this.routeInfo.snapshot.params["id"];
+		}
+	}
 ```
 *queryParams->params*
 
 >activatedRouter 构造之后在ngOnInit （在组件第一次呈现的时候只被调用一次）生命周期中调用的**snapshot是参数快照**；
-还有一种得参数订阅，如果在组件路由到自身的情况下，必须使用**参数订阅（subscribe）**，才能取到动态的参数；
+还有一种得参数订阅，如果在组件路由跳到自身的情况下，必须使用**参数订阅（subscribe）**，才能取到动态的参数；
 
 订阅方式
 
 ```
-this.routeInfo.params.subscribe((params: Params) => this.productId =params["id"]);
+	this.routeInfo.params.subscribe((params: Params) => this.productId =params["id"]);
 ```
 ##### 在路由配置中传统数据
 
 ```
-{path:/product,component:ProductComponent,data:[{isProd:true}]} => ActivatedRoute.data[0][isProd]
+	{path:/product,component:ProductComponent,data:[{isProd:true}]} => ActivatedRoute.data[0][isProd]
 ```
 
 ##### 重定向路由
@@ -148,12 +155,10 @@ www\.codefork.me => love.codefork.me
 ```
 
 ##### 子路由
-
-
 ```
 app.component.html
 
-  <router-outlet></router-outlet>
+	<router-outlet></router-outlet>
 
 product.component.html
 
@@ -185,8 +190,6 @@ saler-info.component.html
   {{Id}}
 
 ```
-
-
 ##### 辅助路由 (兄弟关系)
 
 1. 在app组件的模板上再定义一个插座来显示聊天面板
