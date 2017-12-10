@@ -87,7 +87,7 @@ onSubmit(){
 		</div>
 		<div><label for=""></label><input type="text"  formControlName="password_confirm"></div>
 		<div [hidden]="formModel.hasError('equal')">请与新密码保持一致</div>
-								返回结果名(key)↓，检查字段名↓
+					返回结果名(key)↓，检查字段名↓
 		<div [hidden]="!formModel.hasError('equal','passwordsGroupModel')">
 			<!-- 请与新密码保持一致 -->
 			{{formModel.getError('equal')?.describes}}
@@ -152,9 +152,6 @@ pending
 	</div>
 ```
 
-
-
-
 #### 校验模板式表单
 
 只能通过指令来修改,将校验器方法包装成一个指令(ngFor,ngModel等)来使用
@@ -172,7 +169,7 @@ mobile-validator.directive.ts
 	@Directive({
 				 ↓方括号告诉使用者,指令要作为属性来用
 	  selector: '[appMobileValidator]',
-	  							token↓↓↓↓↓		全局校验方法↓↓↓↓↓↓	一个token下面放多个值
+	  						token↓↓↓↓↓	全局校验方法↓↓↓↓↓↓	一个token下面放多个值
 	  providers : [{provide: NG_VALIDATORS , useValue : mobileValidator, multi : true }],
 	})
 	export class MobileValidatorDirective {
@@ -182,10 +179,10 @@ mobile-validator.directive.ts
 	}
 
 zform.component.html
-														不使用HTML5默认的校验方式↓↓↓↓↓↓↓↓↓
+								不使用HTML5默认的校验方式↓↓↓↓↓↓↓↓↓
 	<form #myform="ngForm" action="/register" (ngSubmit)="onSubmit(myform.value) novalidate">
 	  <div ngModelGroup="userInfo">
-	  						自定义 ↓↓↓↓	 Angular预定义的校验↓↓↓↓
+	  				自定义 ↓↓↓↓	 Angular预定义的校验↓↓↓↓
 	    <input type="text"  appMobileValidator ngModel  required name="username" />
 	    <input type="" ngModel name="email" />
 	  </div>
