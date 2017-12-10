@@ -54,7 +54,7 @@ zchild.component.ts
 		ngOnInit() {
 		}
 		ngOnChanges(changes: SimpleChanges): void {
-		console.log(JSON.stringify(changes, null, 2));
+			console.log(JSON.stringify(changes, null, 2));
 		}
 
 	}
@@ -90,7 +90,7 @@ ngOnChanges只有是输入属性变化时才被调用，所以message变化并�
 
 zone.js 保证组件属性的变化和页面的变化同步的
 
-![]()
+![变更检测](https://github.com/zkerpy/Angular-Learn/blob/master/Img/变更检测.png)
 
 #### DoCheck
 
@@ -108,7 +108,7 @@ zone.js 保证组件属性的变化和页面的变化同步的
 			this.oldUsername = this.user.name;
 		}
 		if (this.changeDetected) {
-			this class="n"></this>oChangeCount = 0;
+			<this class="n">noChangeCount = 0;</this>
 		}else {
 			// user.name没有变化，doDocheck也会被调用
 			this.noChangeCount = this.noChangeCount + 1;
@@ -139,7 +139,7 @@ zone.js 保证组件属性的变化和页面的变化同步的
 	child: ZchildComponent;
 
 	ngOnInit(): void {
-	this.child.greetingfun("zkerpy");
+		this.child.greetingfun("zkerpy");
 	}
 ```
 
@@ -164,6 +164,7 @@ zone.js 保证组件属性的变化和页面的变化同步的
 #### 投影(页头和页脚)
 
 ```
+app.component.html
 
 	<div class="wrapper">
 	  <h2>父组件</h2>
@@ -174,6 +175,7 @@ zone.js 保证组件属性的变化和页面的变化同步的
 	  </app-zchild>
 	</div>
 
+child.component.html
 	<div class="wrapper">
 	  <h2>子组件</h2>
 	  <div class="">这个div定义在子组件中</div>
@@ -196,16 +198,4 @@ zone.js 保证组件属性的变化和页面的变化同步的
 在被投影进入的内容组装完成后调用,当然这个时候企图改变视图不报错,因为Angular的调用顺序是
 投影进来的视图内容>>子组件视图内容>>父组件视图内容
 
-
-
-
-
-
-
-
 运行时动态改变组件内容
-
-
-
-
-
